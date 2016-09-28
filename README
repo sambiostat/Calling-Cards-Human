@@ -1,0 +1,115 @@
+#Readme
+
+##########################################################
+#Porject: Calling_Cards for HUMAN 
+#Data:2016/01/20
+#Author:JINCHUN ZHANG
+##########################################################
+
+This is the pipeline to call peaks in human calling cards experiment
+
+CallingCard.py
+	Calling Cards Wrap Script that runs all the following scripts
+	Usage is 
+		python ../CallingCards.py --p <../../CODE_PATH/> --e <../../exp.gnashy> --w <../../wild.gnashy> --c <integer> --d <integer> --f <float> --a <alpha_value> --r <ref_option> --o <../../OUTFOLDER/>.
+
+Precut.py
+	Count the Independent Insertions for each position and cut the file based on chromosome.
+	Input: txt data (gnashy file) with format'chromosome position count'
+	Output: 24 .txt format data for 24 chromosomes, sorted by position, 3rd column is their number of independent insertion with 5^N bonus for N>1.
+		Header:
+			Chromosome
+			Position
+			Independent_Insertions_withBonus
+			Independent_Insertions
+
+	Cutoff is used for filter out the independent insertions based on their own count which is the 3rd column of the input dataset
+	Usage is 
+		python Precut.py --e <.././experiment.gnashy> --w <../../wild.gnashy> --o <../../OUTFOLDER/> --C <integer>
+
+
+
+QTcluster.py 
+	Partition experiment data into clusters based on the position.
+	Input: .txt format data, i.e. the output file of Precutchr.py.
+	Output: 24 csv files for 24 chromosomes with following header: 
+		Position
+		Cluster
+		Independent_Insertions_withBonus
+		Independent_Insertions
+		Chromosome
+	Usage is: 
+		python QTcluster.py --o <../../OUTFOLDER/> --d <Distance_integer>
+
+Combine.py
+	Combine the Q-T clustered experimental data and the corresponding WILD data. 
+	Input: the directory of QTcluster.py output
+	Output: One csv file,each row is one cluster, with format:
+        	Chromosome
+	        Cluster
+        	Start
+	        Stop
+        	BkgHop
+	        BkgHop_withBonus
+        	ExpHop
+        	ExpHop_withBonus
+	Usage is:
+		python Combine.py --o <../../OUTFOLDER/>
+
+
+Simpletest.py
+	Find subcluster has significant insertion resulted by calling-cards transposon.
+	Input: outpout of Combine.py 
+	Output: One txt file with all Clusters and give two P values based on poisson and hypergeometric models. 
+        Header is  
+                Chromsome
+                Total_WT_insertion 
+                Total_Exp_Insertion 
+                Start   
+                Stop    
+                P_value_from_Poission 
+                P_value_from_Hypergeometric
+                Exphop  
+                WThop
+	Usage is:
+		python Simpletest.py --o <../../OUTFOLDER/> --f <pseudocount_value> --a <alpha_vale>
+
+Annotated.py
+	Annotate Significant output
+	Input: the Significant insertion file, output of the Simpleteste.py
+        	the refGene data with bed format which can be found at the reference file folder.
+	Ouput: the txt file annotated clustered file.
+        header:
+           Chromosome,
+           Start, 
+           Stop, 
+           BkgHop,
+           BkgHop_withBonus, 
+           ExpHop, 
+           ExpHop_withBonus, 
+           BkgFraction, 
+           ExpFraction, 
+           P_Hyper,
+           P_Poisson,     
+           CUTStart,
+           CUTEnd,
+           Closest_Upstream_Gene
+           Closest_Upstream_Gene_Common_Name
+           CUTstrand,
+           CDTStart,
+           CDTEnd,
+           Closest_Downstream_Gene
+           Closest_Downstream_Gene_Common_Name  
+           CDTstrand
+	Usage is:
+		python annotate.py --r <reference_Genome_option> --o <../../OUTFOLDER/>
+
+
+
+
+
+
+
+
+
+
